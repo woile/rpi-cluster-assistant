@@ -1,6 +1,6 @@
 # Raspberry Cluster Assistant
 
-> Scripts to assist with the creation of a raspberry pi cluster.
+> Scripts to assist with the creation of a raspberry pi kubernetes cluster.
 
 ## About
 
@@ -15,13 +15,22 @@ for the cluster.
 The objective of this project is to make it easy to configure a cluster in order
 to start playing with Kubernetes.
 
+## Quickstart
+
+```bash
+./scripts/init
+# Configure conf.json before continuing
+./scripts/render
+./scripts/flash-cluster
+```
+
 ## Features
 
 - Access using `SSH`
 - DHCP Server and `master` node with static IP `10.0.0.1`
 - Range of IPs assigned to nodes goes from `10.0.0.2` to `10.0.0.50`
 - All the nodes have access to wifi. This might be useful later to play with multi-master nodes
-- Includes a series of scripts in `/root` to configure `docker`, `kubernetes` and a pod network.
+- Includes a series of scripts in `/root` to configure `docker`, `kubernetes` and a pod network
 
 ## Prerequisites
 
@@ -31,12 +40,16 @@ to start playing with Kubernetes.
 
 ### 1. Initialization
 
+**Execute**:
+
 ```bash
 ./scripts/init
 ```
 
-1. Installs OS dependencies (debian) in your machine (the host)
-2. Downloads Hypriot OS and `flash`.
+**Explanation**:
+
+1. Installs OS dependencies (debian) in your machine (the host).
+2. Downloads `Hypriot OS` and `flash`.
 3. Creates `conf.json` based on `conf.example.json`.
 
 ### 2. Render template
@@ -47,9 +60,13 @@ to start playing with Kubernetes.
 - Use the raw wifi password because it will be automatically converted using `wpa_passphrase`.
 - If you don't have a ssh key, create one using [this tutorial][ssh_tutorial].
 
+**Execute**:
+
 ```bash
 ./scripts/render
 ```
+
+**Explanation**:
 
 1. Reads information from `conf.json`.
 2. Creates files for Raspberry cluster inside `output` folder.
@@ -58,25 +75,40 @@ to start playing with Kubernetes.
 
 **Before**:
 
-- Update `config.json` values
-- Run `./scripts/render`
+- Update `config.json` values.
+- Run `./scripts/render`.
+
+**Execute**:
 
 ```bash
 ./scripts/flash-cluster
 ```
 
-Follow instructions prompted
+**Explanation**:
+
+1. Show information of what is going to happen and ask for confirmation.
+2. If master node is true, it will be the first to be flashed.
+3. The worker nodes will be flashed.
 
 ### Extras
 
 ### Flash one
 
-This script will prompt the user for some information and
-will only flash one SD card based on the template chosen.
+**Before**:
+
+- Update `config.json` values.
+- Run `./scripts/render`.
+
+**Execute**:
 
 ```bash
 ./scripts/flash-one
 ```
+
+**Explanation**:
+
+1. prompt the user for some information.
+2. flash one SD card based on the node type (`master` or `worker`) chosen.
 
 ### Configuration
 
