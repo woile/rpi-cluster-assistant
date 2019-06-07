@@ -19,7 +19,9 @@ to start playing with Kubernetes.
 
 - Access using `SSH`
 - DHCP Server and `master` node with static IP `10.0.0.1`
-- All the nodes have access to wifi
+- Range of IPs assigned to nodes goes from `10.0.0.2` to `10.0.0.50`
+- All the nodes have access to wifi. This might be useful later to play with multi-master nodes
+- Includes a series of scripts in `/root` to configure `docker`, `kubernetes` and a pod network.
 
 ## Prerequisites
 
@@ -97,10 +99,6 @@ All the values are required, if you don't know what to put, leave the default.
 | `number_of_nodes`  | Number of raspberries to be flashed                                          | `4,`                     |
 | `node_range_start` | Offset to the number of nodes. Example range: `[5..8]` with range start: `5` | `1,`                     |
 | `include_master`   | Decide whether to flash a `master` node or only workers.                     | `true`                   |
-
-### TODO
-
-- [ ] Configure `ufw` firewall
 
 [ssh_tutorial]: https://help.github.com/en/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
 [wifi_codes]: https://github.com/recalbox/recalbox-os/wiki/Wifi-country-code-(EN)
