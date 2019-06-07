@@ -1,0 +1,81 @@
+#!/bin/bash
+HOSTNAME_PREFIX=$(jq -r '.hostname_prefix' conf.json)
+NUMBER_OF_NODES=$(jq -r '.number_of_nodes' conf.json)
+NODE_RANGE_START=$(jq -r '.node_range_start' conf.json)
+INCLUDE_MASTER=$(jq -r '.include_master' conf.json)
+
+
+# Calculate range end
+if [ $NODE_RANGE_START -gt 1 ]; then
+    NODE_RANGE_END=$(($NUMBER_OF_NODES + $NODE_RANGE_START - 1))
+else
+    NODE_RANGE_END=$NUMBER_OF_NODES
+fi
+
+
+HOSTNAME_GENERATED="$HOSTNAME_PREFIX-$NODE_RANGE_START"
+if [ $INCLUDE_MASTER == "true" ]; then
+    NODE_RANGE_START=$(($NODE_RANGE_START+1))
+fi
+
+echo ""
+echo "ATTENTION!!"
+echo "==========="
+echo ""
+echo "Settings:"
+echo ""
+echo "Number of nodes to be created: $NUMBER_OF_NODES"
+echo "Include master: $INCLUDE_MASTER"
+if [ $INCLUDE_MASTER == "true" ]; then
+    echo "Master hostname: $HOSTNAME_GENERATED"
+fi
+echo "Worker nodes range: [$NODE_RANGE_START..$NODE_RANGE_END]"
+echo ""
+
+
+if [ $INCLUDE_MASTER == "true" ]; then
+    echo "--------------------------------------------------"
+    echo ""
+    echo "Flashing 'master' node: '$HOSTNAME_GENERATED'"
+    echo "If you haven not inserted the SD card, this is the time to do it. Remember it will be wiped out"
+    echo "Press [ENTER] to continue or [CTRL + C] to cancel."
+    read ANY
+    echo "Starting flash..."
+
+    downloads/flash -f --hostname $HOSTNAME_GENERATED \
+        -u /home/frair500/projects/raspberry-cluster/output/cloud-init-config.master.yaml \
+        downloads/hypriotos.img.zip
+
+    echo "Done."
+fi
+
+
+echo "--------------------------------------------------"
+echo ""
+
+
+for (( i = NODE_RANGE_START; i <= NODE_RANGE_END; ++i )); do
+    HOSTNAME_GENERATED="$HOSTNAME_PREFIX-$i"
+    echo "Next flash is 'worker' node: '$HOSTNAME_GENERATED'"
+    echo "Insert SD card if you haven't already. Remember it will be wiped out."
+    echo "Press [ENTER] to continue or [CTRL + C] to cancel."
+    read ANY
+    echo "Starting flash..."
+
+    downloads/flash -f --hostname $HOSTNAME_GENERATED \
+        -u /home/frair500/projects/raspberry-cluster/output/cloud-init-config.worker.yaml \
+        downloads/hypriotos.img.zip
+
+    echo "Done."
+    echo "--------------------------------------------------"
+    echo ""
+done
+
+
+echo "*****************************************"
+echo "*             IMPORTANT                 *"
+echo "* Change default password of your nodes *"
+echo "*         Use 'passwd' command          *"
+echo "*****************************************"
+
+echo "Success!"

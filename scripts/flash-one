@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# Utility script to flash only 1 node
+
+HOSTNAME_PREFIX=$(jq -r '.hostname_prefix' conf.json)
+
+echo "Which hostname number is this? Enter a number [1]:"
+read HOSTNAME_SUFFIX
+HOSTNAME_SUFFIX=${HOSTNAME_SUFFIX:-1}
+
+echo "Is this the master node? [Y]/n:"
+read IS_MASTER
+IS_MASTER=${IS_MASTER:-y}
+
+if [[ $IS_MASTER =~ ^(y|Y|yes|YES)$ ]]; then
+    NODE_TYPE="master"
+else
+    NODE_TYPE="worker"
+fi
+
+HOSTNAME_GENERATED="$HOSTNAME_PREFIX-$HOSTNAME_SUFFIX"
+echo "Hostname name is '$HOSTNAME_GENERATED' and this is a '$NODE_TYPE' node. Continue? [Y]/n"
+read CONFIRM
+CONFIRM=${CONFIRM:-y}
+
+if [[ ! $CONFIRM =~ ^(y|Y|yes|YES)$ ]]; then
+    echo "User decided not to continue"
+    exit 0
+fi
+
+echo "Flashing $NODE_TYPE $HOSTNAME_GENERATED ..."
+
+if [ $NODE_TYPE == "master" ]; then
+    downloads/flash -f --hostname $HOSTNAME_GENERATED \
+        -u /home/frair500/projects/raspberry-cluster/output/cloud-init-config.master.yaml \
+        downloads/hypriotos.img.zip
+else
+    downloads/flash -f --hostname $HOSTNAME_GENERATED \
+        -u /home/frair500/projects/raspberry-cluster/output/cloud-init-config.worker.yaml \
+        downloads/hypriotos.img.zip
+fi
+
+
+echo "*****************************************"
+echo "*             IMPORTANT                 *"
+echo "* Change default password of your nodes *"
+echo "*         Use 'passwd' command          *"
+echo "*****************************************"
+
+echo "Done."

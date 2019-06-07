@@ -1,0 +1,11 @@
+{
+  "username": "hypriot",
+  "wifi_ssid_name": "My Wifi Name",
+  "wifi_password": "longandsecurepassword",
+  "wifi_country": "NL",
+  "ssh_public_key": "~/.ssh/id_rsa.pub",
+  "hostname_prefix": "node",
+  "number_of_nodes": 4,
+  "node_range_start": 1,
+  "include_master": true
+}

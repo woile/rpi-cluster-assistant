@@ -1,0 +1,37 @@
+#!/bin/bash
+mkdir -p output
+
+echo "This script will read your 'conf.json'"
+echo "and generate the files for the different parts of the cluster."
+echo ""
+
+USERNAME=$(jq -r '.username' conf.json)
+WIFI_SSID_NAME=$(jq -r '.wifi_ssid_name' conf.json)
+WIFI_PASSWORD_RAW=$(jq -r '.wifi_password' conf.json)
+WIFI_PASSWORD=$(wpa_passphrase $WIFI_SSID_NAME $WIFI_PASSWORD_RAW | grep -v "#psk" | grep -E 'psk' | cut -d '=' -f 2)
+WIFI_COUNTRY=$(jq -r '.wifi_country' conf.json)
+SSH_PUBLIC_KEY_LOCATION=$(jq -r '.ssh_public_key' conf.json)
+SSH_PUBLIC_KEY=$(cat $(eval "echo $SSH_PUBLIC_KEY_LOCATION"))
+TIMEZONE=$(curl -s https://ipapi.co/timezone)
+
+echo "Creating configuration for master..."
+
+cat templates/cloud-init-config-template.master.yml | sed -e "s/\${USERNAME}/$USERNAME/" \
+-e "s/\${WIFI_SSID_NAME}/$WIFI_SSID_NAME/" \
+-e "s/\${WIFI_PASSWORD}/$WIFI_PASSWORD/" \
+-e "s/\${WIFI_COUNTRY}/$WIFI_COUNTRY/" \
+-e "s|\${TIMEZONE}|$TIMEZONE|" \
+-e "s|\${SSH_PUBLIC_KEY}|$SSH_PUBLIC_KEY|" > output/cloud-init-config.master.yaml
+
+echo "Done."
+echo ""
+echo "Creating configuration for workers..."
+
+cat templates/cloud-init-config-template.worker.yml | sed -e "s/\${USERNAME}/$USERNAME/" \
+-e "s/\${WIFI_SSID_NAME}/$WIFI_SSID_NAME/" \
+-e "s/\${WIFI_PASSWORD}/$WIFI_PASSWORD/" \
+-e "s/\${WIFI_COUNTRY}/$WIFI_COUNTRY/" \
+-e "s|\${TIMEZONE}|$TIMEZONE|" \
+-e "s|\${SSH_PUBLIC_KEY}|$SSH_PUBLIC_KEY|" > output/cloud-init-config.worker.yaml
+
+echo "Done."

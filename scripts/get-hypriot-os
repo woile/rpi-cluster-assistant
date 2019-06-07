@@ -1,0 +1,9 @@
+#!/bin/bash
+if [ ! -f downloads/hypriotos.img.zip ]; then
+    echo "Hypriot OS not found! Downloading..."
+    mkdir -p downloads
+    curl -o downloads/hypriotos.img.zip -LO https://github.com/hypriot/image-builder-rpi/releases/download/v1.10.1/hypriotos-rpi-v1.10.1.img.zip
+else
+    echo "Hypriot OS found!"
+fi
+

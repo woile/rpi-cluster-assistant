@@ -1,0 +1,28 @@
+#!/bin/bash
+echo ""
+echo "ATTENTION!"
+echo "=========="
+echo ""
+echo "This script will:"
+echo ""
+echo "1. Install OS dependencies (debian based systems)"
+echo "2. Download Hypriot image and 'flash' tool"
+echo "3. Create 'conf.json' file based on the 'conf.example.json'"
+echo ""
+
+sudo apt install -y curl jq pv unzip hdparm
+echo ""
+./scripts/get-hypriot-os
+echo ""
+./scripts/get-flash
+
+if [ ! -f conf.json ]; then
+    cp conf.example.json conf.json
+fi
+
+echo "******************************************"
+echo "*                                        *"
+echo "* Remember to fill your 'conf.json' file *"
+echo "*                                        *"
+echo "******************************************"
+echo "Done."

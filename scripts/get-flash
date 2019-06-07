@@ -1,0 +1,9 @@
+#!/bin/bash
+if [ ! -f downloads/flash ]; then
+    echo "Flash not found! Downloading..."
+    mkdir -p downloads
+    curl -o downloads/flash -LO https://github.com/hypriot/flash/releases/download/2.3.0/flash
+    chmod +x downloads/flash
+else
+    echo "Flash found!"
+fi
