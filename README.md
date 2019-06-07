@@ -132,5 +132,34 @@ All the values are required, if you don't know what to put, leave the default.
 | `node_range_start` | Offset to the number of nodes. Example range: `[5..8]` with range start: `5` | `1,`                     |
 | `include_master`   | Decide whether to flash a `master` node or only workers.                     | `true`                   |
 
+### Creating kubernetes cluster
+
+#### Master node
+
+```bash
+# as root
+/root/1.docker.sh
+/root/2.install-k8s.sh
+/root/3.create-k8s-master.sh
+/root/4.get-flannel.sh
+
+# Read init output to join other nodes and configure kubectl
+cat /root/kubeadm-init.out
+```
+
+```bash
+# as normal user
+sudo mv /root/kube-flannel.yml ~/
+kubectl apply -f ~/kube-flannel.yml
+```
+
+#### Worker nodes
+
+```bash
+# as root
+/root/1.docker.sh
+/root/2.install-k8s.sh
+```
+
 [ssh_tutorial]: https://help.github.com/en/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
 [wifi_codes]: https://github.com/recalbox/recalbox-os/wiki/Wifi-country-code-(EN)
