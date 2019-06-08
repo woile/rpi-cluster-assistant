@@ -2,3 +2,5 @@ conf.json
 downloads/
 output/
 *.bak
+.vscode/
+.mypy_cache

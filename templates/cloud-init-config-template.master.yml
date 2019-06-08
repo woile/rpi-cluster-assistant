@@ -98,6 +98,18 @@ write_files:
       authoritative;
     path: /etc/dhcp/dhcpd.conf
 
+  - content: |
+      {
+        "exec-opts": ["native.cgroupdriver=systemd"],
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "100m"
+        },
+        "storage-driver": "overlay2"
+      }
+    path: /etc/docker/daemon.json
+#${WRITE_FILES}
+
 # These commands will be ran once on first boot only
 runcmd:
   # Pickup the hostname changes
@@ -123,55 +135,7 @@ runcmd:
   - 'systemctl stop dhcpcd.service'
 
   # Configure docker
-  - |
-    cat > /etc/docker/daemon.json <<EOF
-    {
-      "exec-opts": ["native.cgroupdriver=systemd"],
-      "log-driver": "json-file",
-      "log-opts": {
-        "max-size": "100m"
-      },
-      "storage-driver": "overlay2"
-    }
-    EOF
   - 'mkdir -p /etc/systemd/system/docker.service.d'
-
-  # Create script to configure docker
-  - |
-    cat > /root/1.docker.sh <<EOF
-    apt update
-    apt -y install docker-ce=18.06.3~ce~3-0~raspbian --allow-downgrades
-    apt-mark hold docker-ce
-    EOF
-  - 'chmod +x /root/1.docker.sh'
-
-  # Create script to install kubeadm
-  - |
-    cat > /root/2.install-k8s.sh <<EOF
-    apt update
-    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-    echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
-    apt update
-    apt install -y kubeadm=1.14.1-00 kubelet=1.14.1-00 kubectl=1.14.1-00
-    apt-mark hold kubeadm kubelet kubectl
-    EOF
-  - 'chmod +x /root/2.install-k8s.sh'
-
-  # Create script to create master cluster
-  - |
-    cat > /root/3.create-k8s-master.sh <<EOF
-    kubeadm init --kubernetes-version 1.14.1 \
-    --pod-network-cidr 10.244.0.0/16 \
-    --apiserver-advertise-address=10.0.0.1 | tee kubeadm-init.out
-    EOF
-  - 'chmod +x /root/3.create-k8s-master.sh'
-
-  # Create script to configure flannel
-  - |
-    cat > /root/4.get-flannel.sh <<EOF
-    curl -LO https://raw.githubusercontent.com/coreos/flannel/62e44c867a2846fefb68bd5f178daf4da3095ccb/Documentation/kube-flannel.yml
-    EOF
-  - 'chmod +x /root/4.get-flannel.sh'
 
   # Reboot system
   - reboot

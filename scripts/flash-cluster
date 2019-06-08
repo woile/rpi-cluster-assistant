@@ -1,4 +1,11 @@
 #!/bin/bash
+# Flash cloud-init configuration focused on kubernetes
+# into multiple nodes.
+# Has support for master/worker creation.
+# See `conf.json` for the settings.
+
+./scripts/render.py
+
 HOSTNAME_PREFIX=$(jq -r '.hostname_prefix' conf.json)
 NUMBER_OF_NODES=$(jq -r '.number_of_nodes' conf.json)
 NODE_RANGE_START=$(jq -r '.node_range_start' conf.json)

@@ -20,7 +20,6 @@ to start playing with Kubernetes.
 ```bash
 ./scripts/init
 # Configure conf.json before continuing
-./scripts/render
 ./scripts/flash-cluster
 ```
 
@@ -52,31 +51,11 @@ to start playing with Kubernetes.
 2. Downloads `Hypriot OS` and `flash`.
 3. Creates `conf.json` based on `conf.example.json`.
 
-### 2. Render template
-
-**Before**:
-
-- Update the values in `conf.json`.
-- Use the raw wifi password because it will be automatically converted using `wpa_passphrase`.
-- If you don't have a ssh key, create one using [this tutorial][ssh_tutorial].
-
-**Execute**:
-
-```bash
-./scripts/render
-```
-
-**Explanation**:
-
-1. Reads information from `conf.json`.
-2. Creates files for Raspberry cluster inside `output` folder.
-
-### 3. Flash to SD cards
+### 2. Flash to SD cards
 
 **Before**:
 
 - Update `config.json` values.
-- Run `./scripts/render`.
 
 **Execute**:
 
@@ -97,7 +76,6 @@ to start playing with Kubernetes.
 **Before**:
 
 - Update `config.json` values.
-- Run `./scripts/render`.
 
 **Execute**:
 
@@ -109,6 +87,25 @@ to start playing with Kubernetes.
 
 1. prompt the user for some information.
 2. flash one SD card based on the node type (`master` or `worker`) chosen.
+
+### Render template
+
+**Before**:
+
+- Update the values in `conf.json`.
+- Use the raw wifi password because it will be automatically converted using `wpa_passphrase`.
+- If you don't have a ssh key, create one using [this tutorial][ssh_tutorial].
+
+**Execute**:
+
+```bash
+./scripts/render.py
+```
+
+**Explanation**:
+
+1. Reads information from `conf.json`.
+2. Creates files for Raspberry cluster inside `output` folder.
 
 ### Configuration
 

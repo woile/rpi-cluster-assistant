@@ -2,6 +2,8 @@
 #
 # Utility script to flash only 1 node
 
+./scripts/render.py
+
 HOSTNAME_PREFIX=$(jq -r '.hostname_prefix' conf.json)
 
 echo "Which hostname number is this? Enter a number [1]:"
