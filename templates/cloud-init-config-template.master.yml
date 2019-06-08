@@ -69,7 +69,7 @@ write_files:
       update_config=1
       network={
       ssid="${WIFI_SSID_NAME}"
-      psk=${WIFI_PASSWORD}
+      ${WIFI_PASSWORD}
       proto=RSN
       key_mgmt=WPA-PSK
       pairwise=CCMP
@@ -108,7 +108,7 @@ write_files:
         "storage-driver": "overlay2"
       }
     path: /etc/docker/daemon.json
-#${WRITE_FILES}
+    #$WRITE_FILES
 
 # These commands will be ran once on first boot only
 runcmd:
@@ -136,6 +136,9 @@ runcmd:
 
   # Configure docker
   - 'mkdir -p /etc/systemd/system/docker.service.d'
+
+  # Configuration for pod network plugin
+  - 'sysctl net.bridge.bridge-nf-call-iptables=1'
 
   # Reboot system
   - reboot

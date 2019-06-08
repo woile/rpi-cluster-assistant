@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import os
+import sys
 import json
 import base64
+import subprocess
 import urllib.request
 
 from string import Template
@@ -17,9 +19,10 @@ MASTER_FILES = [
     "k8s-cluster/1.docker.sh",
     "k8s-cluster/2.install-k8s.sh",
     "k8s-cluster/3.create-k8s-master.sh",
-    "k8s-cluster/4.get-flannel.sh",
+    "k8s-cluster/4.configure-user.sh",
+    "k8s-cluster/5.add-flannel-pod-network.sh",
+    "k8s-cluster/5.add-weavenet-pod-network.sh",
 ]
-
 
 WORKER_FILES = ["k8s-cluster/1.docker.sh", "k8s-cluster/2.install-k8s.sh"]
 
@@ -35,11 +38,22 @@ def generate_base64(file_path: str) -> str:
     with open(file_path, "rb") as f:
         encoded_content = base64.b64encode(f.read())
     return f"""
-  - content: "{encoded_content.decode()}"
-    encoding: b64
+  - encoding: b64
+    content: {encoded_content.decode()}
     path: /root/{file_path}
-    permissions: '0755'
-    """
+    permissions: '0755'"""
+
+
+def get_wpa_passphrase(wifi_name: str, wifi_password: str) -> str:
+    cmd = f"wpa_passphrase {wifi_name} {wifi_password}"
+    process = subprocess.Popen(
+        cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    stdout, stderr = process.communicate()
+    if stderr:
+        sys.exit()
+    out = stdout.decode().split()[3]
+    return out
 
 
 def create_config(input_file: str, output_file: str, cluster_scripts: List[str]):
@@ -50,11 +64,13 @@ def create_config(input_file: str, output_file: str, cluster_scripts: List[str])
         ssh_public = f.read()
 
     write_files = "".join([generate_base64(filepath) for filepath in cluster_scripts])
-
+    wifi_passphrase = get_wpa_passphrase(
+        config["wifi_ssid_name"], config["wifi_password"]
+    )
     variables = {
         "USERNAME": config["username"],
         "WIFI_SSID_NAME": config["wifi_ssid_name"],
-        "WIFI_PASSWORD": config["wifi_password"],
+        "WIFI_PASSWORD": wifi_passphrase,
         "WIFI_COUNTRY": config["wifi_country"],
         "SSH_PUBLIC_KEY": ssh_public,
         "WRITE_FILES": write_files,

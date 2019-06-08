@@ -68,22 +68,29 @@ write_files:
       update_config=1
       network={
       ssid="${WIFI_SSID_NAME}"
-      psk=${WIFI_PASSWORD}
+      ${WIFI_PASSWORD}
       proto=RSN
       key_mgmt=WPA-PSK
       pairwise=CCMP
       auth_alg=OPEN
       }
     path: /etc/wpa_supplicant/wpa_supplicant.conf
-#${WRITE_FILES}
+  - content: |
+      {
+        "exec-opts": ["native.cgroupdriver=systemd"],
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "100m"
+        },
+        "storage-driver": "overlay2"
+      }
+    path: /etc/docker/daemon.json
+    #$WRITE_FILES
 
 # These commands will be ran once on first boot only
 runcmd:
   # Pickup the hostname changes
   - 'systemctl restart avahi-daemon'
-
-  # blacklist cluster related interfaces
-  - 'echo denyinterfaces cni*,docker*,wlan*,flannel*,veth* >> /etc/dhcpcd.conf'
 
   # Activate WiFi interface
   - 'ifup wlan0'
@@ -96,5 +103,11 @@ runcmd:
 
   # Disabled after a reboot
   - sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+  # Configuration for pod network plugin
+  - 'sysctl net.bridge.bridge-nf-call-iptables=1'
+
+  # blacklist cluster related interfaces
+  - 'echo denyinterfaces cni*,docker*,wlan*,flannel*,veth* >> /etc/dhcpcd.conf'
 
   - reboot
