@@ -97,7 +97,6 @@ write_files:
       max-lease-time 7200;
       authoritative;
     path: /etc/dhcp/dhcpd.conf
-
   - content: |
       {
         "exec-opts": ["native.cgroupdriver=systemd"],

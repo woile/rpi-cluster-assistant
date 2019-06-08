@@ -7,5 +7,6 @@
   "hostname_prefix": "node",
   "number_of_nodes": 4,
   "node_range_start": 1,
-  "include_master": true
+  "include_master": true,
+  "pod_network": "flannel"
 }

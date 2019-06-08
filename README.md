@@ -28,8 +28,10 @@ to start playing with Kubernetes.
 - Access using `SSH`
 - DHCP Server and `master` node with static IP `10.0.0.1`
 - Range of IPs assigned to nodes goes from `10.0.0.2` to `10.0.0.50`
-- All the nodes have access to wifi. This might be useful later to play with multi-master nodes
-- Includes a series of scripts in `/root` to configure `docker`, `kubernetes` and a pod network
+- All the nodes have access to wifi. This might be useful later to play with multi-master nodes.
+- Provision a `kubernetes` cluster
+- Support for multiple pod networks
+- Include kubernetes addons
 
 ## Prerequisites
 
@@ -48,8 +50,8 @@ to start playing with Kubernetes.
 **Explanation**:
 
 1. Installs OS dependencies (debian) in your machine (the host).
-2. Downloads `Hypriot OS` and `flash`.
-3. Creates `conf.json` based on `conf.example.json`.
+1. Downloads `Hypriot OS` and `flash`.
+1. Creates `conf.json` based on `conf.example.json`.
 
 ### 2. Flash to SD cards
 
@@ -66,8 +68,9 @@ to start playing with Kubernetes.
 **Explanation**:
 
 1. Show information of what is going to happen and ask for confirmation.
-2. If master node is true, it will be the first to be flashed.
-3. The worker nodes will be flashed.
+1. Render cluster files.
+1. If master node is true, it will be the first to be flashed.
+1. The worker nodes will be flashed.
 
 ### Extras
 
@@ -85,8 +88,9 @@ to start playing with Kubernetes.
 
 **Explanation**:
 
-1. prompt the user for some information.
-2. flash one SD card based on the node type (`master` or `worker`) chosen.
+1. Prompt the user for some information.
+1. Render cluster files.
+1. Flash one SD card based on the node type (`master` or `worker`) chosen.
 
 ### Render template
 
@@ -105,7 +109,7 @@ to start playing with Kubernetes.
 **Explanation**:
 
 1. Reads information from `conf.json`.
-2. Creates files for Raspberry cluster inside `output` folder.
+1. Creates files for Raspberry cluster inside `output` folder.
 
 ### Configuration
 
@@ -128,35 +132,32 @@ All the values are required, if you don't know what to put, leave the default.
 | `number_of_nodes`  | Number of raspberries to be flashed                                          | `4,`                     |
 | `node_range_start` | Offset to the number of nodes. Example range: `[5..8]` with range start: `5` | `1,`                     |
 | `include_master`   | Decide whether to flash a `master` node or only workers.                     | `true`                   |
+| `pod_network`      | [Pod Network][pod_network]. Options: `weavenet`, `flannel`                   | `flannel`                |
 
-### Creating kubernetes cluster
+### Provisioning kubernetes cluster
 
 #### Master node
 
-```bash
-# as root
-/root/1.docker.sh
-/root/2.install-k8s.sh
-/root/3.create-k8s-master.sh
-/root/4.get-flannel.sh
+1. As root follow the steps located in `/root/k8s-cluster`.
+1. As normal user follow the steps located in `/home/<user>/k8s-config`
 
-# Read init output to join other nodes and configure kubectl
-cat /root/kubeadm-init.out
-```
+**Notes**:
 
-```bash
-# as normal user
-sudo mv /root/kube-flannel.yml ~/
-kubectl apply -f ~/kube-flannel.yml
-```
+- Observe the output located in `/root/k8s-cluster/kubeadm-init.out` because you will
+- have to run the `kubeadm join ...` after provisioning the worker nodes.
 
 #### Worker nodes
 
-```bash
-# as root
-/root/1.docker.sh
-/root/2.install-k8s.sh
-```
+Remember that this must be executed after running all the scripts above
+
+1. As root follow the steps located in `/root/k8s-cluster`.
+1. Run `kubeadm join ...` command which appears in the master node.
+
+#### Finally
+
+You can run the [addons][k8s_addons] included in `/home/<user>/k8s-addons`.
 
 [ssh_tutorial]: https://help.github.com/en/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
 [wifi_codes]: https://github.com/recalbox/recalbox-os/wiki/Wifi-country-code-(EN)
+[pod_network]: https://kubernetes.io/docs/concepts/cluster-administration/addons/#networking-and-network-policy
+[k8s_addons]: https://kubernetes.io/docs/concepts/cluster-administration/addons/

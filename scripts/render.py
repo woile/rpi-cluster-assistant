@@ -16,15 +16,20 @@ TEMPLATE_WORKER = "templates/cloud-init-config-template.worker.yml"
 OUTPUT_WORKER = "output/cloud-init-config.worker.yaml"
 
 MASTER_FILES = [
-    "k8s-cluster/1.docker.sh",
-    "k8s-cluster/2.install-k8s.sh",
-    "k8s-cluster/3.create-k8s-master.sh",
-    "k8s-cluster/4.configure-user.sh",
-    "k8s-cluster/5.add-flannel-pod-network.sh",
-    "k8s-cluster/5.add-weavenet-pod-network.sh",
+    "provision-k8s/root/k8s-cluster/1.docker.sh",
+    "provision-k8s/root/k8s-cluster/2.install-k8s.sh",
+    "provision-k8s/root/k8s-cluster/3.create-k8s-master.sh",
+    "provision-k8s/user/k8s-config/1.configure-user.sh",
+    "provision-k8s/user/k8s-config/2.add-flannel-pod-network.sh",
+    "provision-k8s/user/k8s-config/2.add-weavenet-pod-network.sh",
+    "provision-k8s/user/k8s-addons/add-dashboard.sh",
+    "provision-k8s/user/k8s-utils/get-dashboard-token.sh",
 ]
 
-WORKER_FILES = ["k8s-cluster/1.docker.sh", "k8s-cluster/2.install-k8s.sh"]
+WORKER_FILES = [
+    "provision-k8s/root/k8s-cluster/1.docker.sh",
+    "provision-k8s/root/k8s-cluster/2.install-k8s.sh",
+]
 
 
 with urllib.request.urlopen("https://ipapi.co/timezone") as response:
@@ -34,13 +39,22 @@ with open("./conf.json", "r") as f:
     config = json.load(f)
 
 
-def generate_base64(file_path: str) -> str:
+def filter_pod_network(value: str, pod_network: str) -> bool:
+    if "pod-network" in value:
+        return pod_network in value
+    return True
+
+
+def generate_base64(file_path: str, username: str) -> str:
     with open(file_path, "rb") as f:
         encoded_content = base64.b64encode(f.read())
+    node_file_path = file_path.replace("provision-k8s", "").replace(
+        "user", f"home/{username}"
+    )
     return f"""
   - encoding: b64
     content: {encoded_content.decode()}
-    path: /root/{file_path}
+    path: {node_file_path}
     permissions: '0755'"""
 
 
@@ -62,13 +76,20 @@ def create_config(input_file: str, output_file: str, cluster_scripts: List[str])
 
     with open(os.path.expanduser(ssh_location), "r") as f:
         ssh_public = f.read()
+    username = config["username"]
+    pod_network = config["pod_network"]
+    cluster_scripts = list(filter(
+        lambda value: filter_pod_network(value, pod_network), cluster_scripts
+    ))
 
-    write_files = "".join([generate_base64(filepath) for filepath in cluster_scripts])
+    write_files = "".join(
+        [generate_base64(filepath, username) for filepath in cluster_scripts]
+    )
     wifi_passphrase = get_wpa_passphrase(
         config["wifi_ssid_name"], config["wifi_password"]
     )
     variables = {
-        "USERNAME": config["username"],
+        "USERNAME": username,
         "WIFI_SSID_NAME": config["wifi_ssid_name"],
         "WIFI_PASSWORD": wifi_passphrase,
         "WIFI_COUNTRY": config["wifi_country"],
