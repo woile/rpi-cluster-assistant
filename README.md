@@ -6,11 +6,12 @@
 
 This repository will help and guide you on setting up a cluster with multiple raspberries pi.
 
-Currently it can generate a `master` and `N`-`workers` where `N` is the number of nodes chosen in the `conf.json`.
+Currently it can generate a `master` and `N`-`workers` where `N` is the number of
+nodes chosen in the `conf.json`.
 
-Also it configures a DHCP server making the `master` node start assigning IPs to the worker nodes.
-It is expected for the raspberries to be connected to the same switch. The `eth0` interface should be
-for the cluster.
+It configures a DHCP server making the `master` node start assigning IPs to the worker nodes.
+It is expected for the raspberries to be connected to the same switch.
+The `eth0` interface should be reserved for the cluster.
 
 The objective of this project is to make it easy to configure a cluster in order
 to start playing with Kubernetes.
@@ -18,20 +19,25 @@ to start playing with Kubernetes.
 ## Quickstart
 
 ```bash
+git clone https://github.com/Woile/rpi-cluster-assistant.git
+cd rpi-cluster-assistant/
+```
+
+```bash
 ./scripts/init
-# Configure conf.json before continuing
 ./scripts/flash-cluster
 ```
 
 ## Features
 
-- Access using `SSH`
+- Access using `SSH` to the nodes.
 - DHCP Server and `master` node with static IP `10.0.0.1`
 - Range of IPs assigned to nodes goes from `10.0.0.2` to `10.0.0.50`
 - All the nodes have access to wifi. This might be useful later to play with multi-master nodes.
 - Provision a `kubernetes` cluster
-- Support for multiple pod networks
-- Include kubernetes addons
+- Support for multiple pod networks: `flannel`, `weavenet`
+- Include kubernetes addons, currently only dashboard.
+- Prompt asking for the configuration of the cluster.
 
 ## Prerequisites
 
@@ -51,7 +57,7 @@ to start playing with Kubernetes.
 
 1. Installs OS dependencies (debian) in your machine (the host).
 1. Downloads `Hypriot OS` and `flash`.
-1. Creates `conf.json` based on `conf.example.json`.
+1. Create 'conf.json' using the assistant if file is not present.
 
 ### 2. Flash to SD cards
 
@@ -73,6 +79,19 @@ to start playing with Kubernetes.
 1. The worker nodes will be flashed.
 
 ### Extras
+
+### Assistant
+
+**Execute**:
+
+```bash
+./scripts/assistant.py
+```
+
+**Explanation**:
+
+1. Questions about the cluster are prompted.
+1. A `conf.json` file is generated.
 
 ### Flash one
 
@@ -121,18 +140,18 @@ cp conf.example.json conf.json
 
 All the values are required, if you don't know what to put, leave the default.
 
-| Variable           | Description                                                                  | Default                  |
-| ------------------ | ---------------------------------------------------------------------------- | ------------------------ |
-| `username`         | The username used to log in to the node                                      | `hypriot,`               |
-| `wifi_ssid_name`   | The name of your wifi                                                        | `My Wifi Name,`          |
-| `wifi_password`    | Raw password of your wifi                                                    | `longandsecurepassword,` |
-| `wifi_country`     | Country where you are, [check the codes][wifi_codes]                         | `NL,`                    |
-| `ssh_public_key`   | Public [SSH Key][ssh_tutorial] to access from outside the nodes              | `~/.ssh/id_rsa.pub,`     |
-| `hostname_prefix`  | Name of the machine. It will look like: `node-1`                             | `node,`                  |
-| `number_of_nodes`  | Number of raspberries to be flashed                                          | `4,`                     |
-| `node_range_start` | Offset to the number of nodes. Example range: `[5..8]` with range start: `5` | `1,`                     |
-| `include_master`   | Decide whether to flash a `master` node or only workers.                     | `true`                   |
-| `pod_network`      | [Pod Network][pod_network]. Options: `weavenet`, `flannel`                   | `flannel`                |
+| Variable           | Description                                                                  | Default             |
+| ------------------ | ---------------------------------------------------------------------------- | ------------------- |
+| `username`         | The username used to log in to the node                                      | `hypriot`           |
+| `wifi_ssid_name`   | The name of your wifi                                                        | -                   |
+| `wifi_password`    | Raw password of your wifi                                                    | -                   |
+| `wifi_country`     | Country where you are, [check the codes][wifi_codes]                         | `NL`                |
+| `ssh_public_key`   | Public [SSH Key][ssh_tutorial] to access from outside the nodes              | `~/.ssh/id_rsa.pub` |
+| `hostname_prefix`  | Name of the machine. It will look like: `node-1`                             | `node`              |
+| `number_of_nodes`  | Number of raspberries to be flashed                                          | `4`                 |
+| `node_range_start` | Offset to the number of nodes. Example range: `[5..8]` with range start: `5` | `1`                 |
+| `include_master`   | Decide whether to flash a `master` node or only workers.                     | `true`              |
+| `pod_network`      | [Pod Network][pod_network]. Options: `weavenet`, `flannel`                   | `flannel`           |
 
 ### Provisioning kubernetes cluster
 

@@ -7,7 +7,7 @@ echo "This script will:"
 echo ""
 echo "1. Install OS dependencies (debian based systems)"
 echo "2. Download Hypriot image and 'flash' tool"
-echo "3. Create 'conf.json' file based on the 'conf.example.json'"
+echo "3. Create 'conf.json' using the assistant if file is not present"
 echo ""
 
 sudo apt install -y curl jq pv unzip hdparm
@@ -17,7 +17,7 @@ echo ""
 ./scripts/get-flash
 
 if [ ! -f conf.json ]; then
-    cp conf.example.json conf.json
+    ./scripts/assistant.py
 fi
 
 echo "******************************************"
