@@ -28,6 +28,9 @@ cd rpi-cluster-assistant/
 ./scripts/flash-cluster
 ```
 
+Once the SD cards have been flashed, plug them in the raspberries.
+I'd recommend starting with the SD containing the master node.
+
 ## Features
 
 - Access using `SSH` to the nodes.
@@ -42,6 +45,7 @@ cd rpi-cluster-assistant/
 ## Prerequisites
 
 - Linux Debian based OS.
+- Python 3.x
 
 ## Usage
 
@@ -78,7 +82,7 @@ cd rpi-cluster-assistant/
 1. If master node is true, it will be the first to be flashed.
 1. The worker nodes will be flashed.
 
-### Extras
+### Extra commands
 
 ### Assistant
 

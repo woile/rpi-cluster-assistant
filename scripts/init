@@ -18,11 +18,12 @@ echo ""
 
 if [ ! -f conf.json ]; then
     ./scripts/assistant.py
-fi
-
+else
 echo "******************************************"
 echo "*                                        *"
 echo "* Remember to fill your 'conf.json' file *"
 echo "*                                        *"
 echo "******************************************"
+fi
+
 echo "Done."
