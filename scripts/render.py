@@ -99,6 +99,9 @@ def create_config(input_file: str, output_file: str, cluster_scripts: List[str])
     }
     with open(input_file, "r") as f:
         src = Template(f.read())
+        file_path = os.path.dirname(output_file)
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
         with open(output_file, "w") as g:
             g.write(src.safe_substitute(variables))
 
