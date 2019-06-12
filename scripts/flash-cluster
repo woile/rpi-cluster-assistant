@@ -50,7 +50,7 @@ if [ $INCLUDE_MASTER == "true" ]; then
     echo "Starting flash..."
 
     downloads/flash -f --hostname $HOSTNAME_GENERATED \
-        -u /home/frair500/projects/raspberry-cluster/output/cloud-init-config.master.yaml \
+        -u output/cloud-init-config.master.yaml \
         downloads/hypriotos.img.zip
 
     echo "Done."
@@ -70,7 +70,7 @@ for (( i = NODE_RANGE_START; i <= NODE_RANGE_END; ++i )); do
     echo "Starting flash..."
 
     downloads/flash -f --hostname $HOSTNAME_GENERATED \
-        -u /home/frair500/projects/raspberry-cluster/output/cloud-init-config.worker.yaml \
+        -u output/cloud-init-config.worker.yaml \
         downloads/hypriotos.img.zip
 
     echo "Done."
